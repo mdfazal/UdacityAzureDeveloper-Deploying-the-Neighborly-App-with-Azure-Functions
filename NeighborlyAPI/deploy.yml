@@ -1,0 +1,195 @@
+data:
+  AzureWebJobsStorage: RGVmYXVsdEVuZHBvaW50c1Byb3RvY29sPWh0dHBzO0VuZHBvaW50U3VmZml4PWNvcmUud2luZG93cy5uZXQ7QWNjb3VudE5hbWU9YmxvYjIwMjEwNDExO0FjY291bnRLZXk9U28raVVGYlBaMk5hcnFIVWEyY2pWWWhKUFY3RFViUGY1eHdtaVFISVVwRWxtVjFxRGdjWi9LMkJOelM0RUx3TS92Y1FiSFpZQjdCTTU2ZFdxR0ordmc9PQ==
+  FUNCTIONS_WORKER_RUNTIME: cHl0aG9u
+  ConnectionStrings: bW9uZ29kYjovL2Nvc21vczIwMjEwNDExOnQ4VVhYT2F6SVBBRmc2a3JRS0RoUDBuVjJGWEs2V1Z0MmF5Y2ZSaEIzWHVacDJXd0hMVUVBeTMyejZJTjRUTXF1aVBibWNBWVFzbWZkRVNzZVJibGVnPT1AY29zbW9zMjAyMTA0MTEubW9uZ28uY29zbW9zLmF6dXJlLmNvbToxMDI1NS8/c3NsPXRydWUmcmVwbGljYVNldD1nbG9iYWxkYiZyZXRyeXdyaXRlcz1mYWxzZSZtYXhJZGxlVGltZU1TPTEyMDAwMCZhcHBOYW1lPUBjb3Ntb3MyMDIxMDQxMUA=
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kubercluster20210411
+---
+data:
+  host.master: V0ZLN29YaTRXcWFhV1Rhc2FBR2xDcmFmSi9jak01S0VhYUhaYlhsNEN1YVJlN1B2dGxGdVlnPT0=
+  host.function.default: Y0dRNDJmbUF4QjhWZWtUN2lrSTlrUUhrSkZkcmhOdERtMm5UVjNBclRpUm9KWFFBTGJJM053PT0=
+  host.systemKey.default: d1NQaUFNM1ZuaDZYYWpMcDNmOTNpZ2NSNjR1QUhTU1VVc3l1S3NyWHc1T3Vza2pHVzBOTFlnPT0=
+  functions.createadvertisement.default: bDMvbGQwNk5MWUtPc05pV3UzZWFZaUVrMW95N0p3WjlJQmVybTk5bG5UeGE4cGpoZEk0aUd3PT0=
+  functions.deleteadvertisement.default: b1RHTWZ3Q2J2cG1jR0MvcTEvdUZ5NHVuU1lWUFJKa2FXUnluNlJMcVBpYnpFcTNhWmY0ZWFnPT0=
+  functions.getadvertisement.default: VU93bmlSYUZVaWFrb1VvcUg3cEdpcmllTHYxYWtrNWRyTVFOVWkwVjlKMTUxVWJGVWZveWR3PT0=
+  functions.getadvertisements.default: ZDlNYXY3MTBpRFZhUUVjQ01tY1o2VTl1bjlXYWNDRUF2VzNyWGJjODh5Si9uZFFrazMyaFlRPT0=
+  functions.getpost.default: M29rL3V5ZkZMYWNDY1VqU0prUWJzSS9xYmFiYXpscEdsTVlERHl0cWsxNmN2bHNOS3JzYVVBPT0=
+  functions.getposts.default: ejdaSzVCRUZ4eE1VUm43MkI0cU5wUFpnZ2xmSHZJMUN0OG04T3RsYXIxYkJmalIyOFpsN09BPT0=
+  functions.updateadvertisement.default: aEprbGxhR0JEbnVzVWlzaVV4aWVYYU5jNVBzODZDdkFhSHdmZzUwYVppOXRGanMzOTJzUm1nPT0=
+apiVersion: v1
+kind: Secret
+metadata:
+  name: func-keys-kube-secret-kubercluster20210411
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubercluster20210411-function-keys-identity-svc-act
+---
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  - configMaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: functions-keys-manager-role
+---
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: functions-keys-manager-role
+subjects:
+- kind: ServiceAccount
+  name: kubercluster20210411-function-keys-identity-svc-act
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubercluster20210411-function-keys-identity-svc-act-functions-keys-manager-rolebinding
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubercluster20210411-http
+spec:
+  selector:
+    app: kubercluster20210411-http
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubercluster20210411-http
+  labels:
+    app: kubercluster20210411-http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubercluster20210411-http
+  template:
+    metadata:
+      labels:
+        app: kubercluster20210411-http
+    spec:
+      containers:
+      - name: kubercluster20210411-http
+        image: appregistry20210411.azurecr.io/docker20210411:v1
+        ports:
+        - containerPort: 80
+        env:
+        - name: AzureFunctionsJobHost__functions__0
+          value: createAdvertisement
+        - name: AzureFunctionsJobHost__functions__1
+          value: deleteAdvertisement
+        - name: AzureFunctionsJobHost__functions__2
+          value: getAdvertisement
+        - name: AzureFunctionsJobHost__functions__3
+          value: getAdvertisements
+        - name: AzureFunctionsJobHost__functions__4
+          value: getPost
+        - name: AzureFunctionsJobHost__functions__5
+          value: getPosts
+        - name: AzureFunctionsJobHost__functions__6
+          value: updateAdvertisement
+        - name: AzureWebJobsSecretStorageType
+          value: kubernetes
+        - name: AzureWebJobsKubernetesSecretName
+          value: secrets/func-keys-kube-secret-kubercluster20210411
+        envFrom:
+        - secretRef:
+            name: kubercluster20210411
+        readinessProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 240
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+        startupProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 240
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+      serviceAccountName: kubercluster20210411-function-keys-identity-svc-act
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubercluster20210411
+  labels:
+    app: kubercluster20210411
+spec:
+  selector:
+    matchLabels:
+      app: kubercluster20210411
+  template:
+    metadata:
+      labels:
+        app: kubercluster20210411
+    spec:
+      containers:
+      - name: kubercluster20210411
+        image: appregistry20210411.azurecr.io/docker20210411:v1
+        env:
+        - name: AzureFunctionsJobHost__functions__0
+          value: EventGridTrigger
+        envFrom:
+        - secretRef:
+            name: kubercluster20210411
+        readinessProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 240
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+        startupProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 240
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+      serviceAccountName: kubercluster20210411-function-keys-identity-svc-act
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kubercluster20210411
+  labels: {}
+spec:
+  scaleTargetRef:
+    name: kubercluster20210411
+  triggers:
+  - type: eventgridtrigger
+    metadata:
+      direction: in
+---
+
